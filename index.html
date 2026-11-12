@@ -136,7 +136,7 @@ const SC=[
  {id:'set',t:'الإعدادات',ic:'set',c:'k',subs:[['sct','المكاتب'],['sme','بياناتي والمظهر'],['sbk','النسخ الاحتياطي']]}
 ];
 const SEC_OF={sti:'stk',off:'acc',vch:'vch',vs:'vch',ob:'ob',log:'log',set:'set',sct:'set',sme:'set',sbk:'set'};
-let LSUB={},PV=[];const VER='2026-11-12 · 2';
+let LSUB={},PV=[];const VER='2026-11-12 · 4';
 let NVS=[],PBK=0,LEAVING=0;
 function go(t,nopush){const t0=tab,sm=t0!=t&&SEC_OF[t0]&&SEC_OF[t0]==SEC_OF[t];if(t!=tab&&!nopush&&!PBK&&!sm){NVS.push(tab);if(NVS.length>30)NVS.shift()}if(t!=tab){po=0;QS='';vp='';DQ='';DP='all'}tab=t;sel=null;if(t=='rpn'&&pt!='month'){pt='month';po=0}if(t!='inv')LI=null;if(t!='sti')LS=null;const c=SEC_OF[t];if(c)LSUB[c]=t;render();try{if(!nopush){if(sm)history.replaceState({t},'');else history.pushState({t},'')}window.scrollTo(0,0)}catch(e){}}
 try{window.addEventListener('popstate',e=>{const t=e.state&&e.state.t||'home';if(LEAVING){LEAVING=0;go(t,1);return}if(t!=tab&&dirtyForm()){try{history.pushState({t:tab},'')}catch(x){}leaveAsk(()=>{LEAVING=1;history.back()});return}go(t,1)});history.replaceState({t:'home'},'')}catch(e){}
@@ -240,7 +240,7 @@ function addLine(){const v=i=>parseFloat($(i).value),t=$('item').value.trim(),b=
   if(s<b)return ask(`سعر البيع (${M(s)}) أقل من سعر الشراء (${M(b)}) — خسارة ${M((b-s)*q)}. إضافة رغم ذلك؟`,go);go()},
   it=S.items.find(i=>nz(i.n)==nz(t));
  if(it)return run(it.n);
- ask(`الصنف «${esc(t)}» غير موجود في القائمة. إضافته كصنف جديد؟`,()=>{S.items.push({n:t,p:0,b:''});run(t)})}
+ S.items.push({n:t,p:0,b:''});run(t)}
 function saveInv(){const D=S.draft;if(!D.lines.length)return toast('أضف أصنافاً أولاً');if(!D.d)D.d=iso(new Date());if(!pinOk([D.d]))return;
  if(D.lines.some(r=>!(r.shop||'').trim()))return toast('يوجد سطر بدون عميل — اضغط ✎ وحدد العميل');
  const bt=Date.now(),inv=[],of={};let k=0;
@@ -265,7 +265,7 @@ function vInvS(){const D=S.sd,td=iso(new Date());if(!D.d||(!D.lines.length&&D.t!
  <table class="gt" style="margin-top:10px"><colgroup><col style="width:46px"><col style="width:18%"><col style="width:22%"><col style="width:32%"><col style="width:28%"></colgroup>
  <tr><th></th><th>العدد</th><th>السعر ${SARH}</th><th>الصنف</th><th>الدلال</th></tr>
  <tr class="ent"><td><button class="pl add" onclick="addLineS()" aria-label="إضافة">＋</button></td><td><input id="q" type="text" inputmode="decimal" autocomplete="off" placeholder="لم يصل" oninput="calc()"></td><td><input id="b" type="text" inputmode="decimal" autocomplete="off" placeholder="لم يصل" oninput="calc()"></td><td><input id="item" type="text" autocomplete="off" placeholder="اكتب الصنف" oninput="sug()" onfocus="sug()" onchange="pick()" onblur="setTimeout(hideSug,200)"></td><td>${ta('off','off',D.off,'الدلال')}</td></tr>
- ${G.map(g=>`<tr class="grp"><td colspan="5">🏪 ${esc(g.o)||'بدون دلال'} <span class="mut" style="float:left;font-weight:400">${M(g.L.reduce((a,[r])=>a+r.q*r.b,0))}</span></td></tr>`+g.L.map(([r,i])=>`<tr><td><button class="x" style="color:var(--tx)" onclick="editS(${i})">✎</button><button class="x" onclick="S.sd.lines.splice(${i},1);save();render()">×</button></td><td>${r.pq&&!r.q?'<span class="neg">لم يصل</span>':f(r.q)+(r.pq?' ⚠️':'')}</td><td>${r.pp?'<span class="neg">لم يصل</span>':f(r.b)}</td><td>${esc(r.item)}</td><td>${esc(r.off)||'—'}</td></tr>`).join('')).join('')}
+ ${G.map(g=>`<tr class="grp"><td colspan="5">🏪 ${esc(g.o)||'بدون دلال'} <span class="mut" style="float:left;font-weight:400">الإجمالي ${M(g.L.reduce((a,[r])=>a+r.q*r.b,0))}</span></td></tr>`+g.L.map(([r,i])=>`<tr><td><button class="x" style="color:var(--tx)" onclick="editS(${i})">✎</button><button class="x" onclick="S.sd.lines.splice(${i},1);save();render()">×</button></td><td>${r.pq&&!r.q?'<span class="neg">لم يصل</span>':f(r.q)+(r.pq?' ⚠️':'')}</td><td>${r.pp?'<span class="neg">لم يصل</span>':f(r.b)}</td><td>${esc(r.item)}</td><td>${esc(r.off)||'—'}</td></tr>`).join('')).join('')}
  </table><small class="mut" style="display:block;margin-top:8px">إذا لم يصلك السعر أو العدد اترك الخانة فارغة؛ يُسجَّل «لم يصل» وسيُذكّرك البرنامج بإكماله.</small><small id="pv" class="mut" style="display:block;min-height:18px;margin-top:6px"></small>
  ${D.lines.length?`<div class="gf"><div class="tot"><div class="li"><b>إجمالي الشراء</b><b class="big">${M(tot)}</b></div></div><button onclick="saveStock()">💾 حفظ الفاتورة</button></div>`:''}<small class="mut" style="display:block;margin-top:8px">كل سطر يُسجَّل برقمه وتاريخه وسعره، ويصير للمكتب حق عليك من لحظة الحفظ.</small></div>`+stInvList()}
 let STV='';
@@ -279,7 +279,7 @@ function addLineS(){const v=i=>parseFloat($(i).value),t=$('item').value.trim(),b
  const run=item=>{S.sd.lines.push(Object.assign({item,q:pq?0:q,b:pp?0:b,off},pp?{pp:1}:{},pq?{pq:1}:{}));S.sd.off=off;if(!S.offs.includes(off))S.offs.push(off);const it=S.items.find(i=>i.n==item);if(it&&!pp)it.b=b;save();render();toast('تمت الإضافة');const e=$('q');if(e)e.focus()},
   it=S.items.find(i=>nz(i.n)==nz(t));
  if(it)return run(it.n);
- ask(`الصنف «${esc(t)}» غير موجود في القائمة. إضافته كصنف جديد؟`,()=>{S.items.push({n:t,p:0,b:''});run(t)})}
+ S.items.push({n:t,p:0,b:''});run(t)}
 function editS(i){const r=S.sd.lines[i];if(!r)return;const e=$('m'),it=S.items.some(x=>x.n==r.item)?S.items:[{n:r.item}].concat(S.items);
  e.innerHTML=`<div class="card" style="text-align:right"><b>تعديل سطر</b><label>الصنف</label><select id="ed_i">${it.map(x=>`<option ${x.n==r.item?'selected':''}>${esc(x.n)}</option>`).join('')}</select><div class="row"><div><label>العدد</label><input id="ed_q" type="text" inputmode="decimal" autocomplete="off" placeholder="فارغ = لم يصل" value="${r.q?r.q:''}"></div><div><label>سعر الشراء</label><input id="ed_b" type="text" inputmode="decimal" autocomplete="off" placeholder="فارغ = لم يصل" value="${r.pp?'':r.b}"></div></div><label>الدلال</label><input id="ed_o" list="offs" value="${esc(r.off||'')}"><div class="row"><button class="alt" onclick="$('m').style.display='none'">إلغاء</button><button onclick="saveS(${i})">حفظ</button></div></div>`;e.style.display='flex'}
 function saveS(i){const r=S.sd.lines[i],pq=String($('ed_q').value).trim()==='',q=pq?0:parseFloat($('ed_q').value),pp=String($('ed_b').value).trim()==='',b=pp?0:parseFloat($('ed_b').value),item=$('ed_i').value,off=$('ed_o').value.trim();if(!r||!off||!item||(!pq&&!(q>0))||isNaN(b))return toast('تأكد من القيم (الدلال مطلوب)');
